@@ -4,11 +4,12 @@ import java.util.concurrent.TimeUnit;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
 public class SerialReceive implements Receive {
 
-	private SerialPort serialPort;
+	private static SerialPort serialPort;
 	
 	@Override
 	public int ultrasonic_1() {
@@ -52,23 +53,25 @@ public class SerialReceive implements Receive {
 		// TODO Auto-generated method stub
 
 		serialPort = new SerialPort("/dev/ttyACM0");
-		
-		serialPort.openPort();
-
-	    serialPort.setParams(SerialPort.BAUDRATE_9600,
-	                         SerialPort.DATABITS_8,
-	                         SerialPort.STOPBITS_1,
-	                         SerialPort.PARITY_NONE);
-
-	    serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
-	    							SerialPort.FLOWCONTROL_RTSCTS_OUT);
-	    	
-	    serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
-	    		
+		try {
+			serialPort.openPort();
 	
+		    serialPort.setParams(SerialPort.BAUDRATE_9600,
+		                         SerialPort.DATABITS_8,
+		                         SerialPort.STOPBITS_1,
+		                         SerialPort.PARITY_NONE);
+	
+		    serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
+		    							SerialPort.FLOWCONTROL_RTSCTS_OUT);
+		    	
+		    serialPort.addEventListener(new SerialPortReader(), SerialPort.MASK_RXCHAR);
+		}catch (SerialPortException e) {
+			e.printStackTrace();
+		}
+	    		
 	}
 	
-	protected static class SerialPortReader implements SerialPortEventListener{
+	static class SerialPortReader implements SerialPortEventListener{
 		
 	    @Override
 	    public void serialEvent(SerialPortEvent event) {
@@ -93,7 +96,12 @@ public class SerialReceive implements Receive {
 	@Override
 	public void close() {
 		// TODO Auto-generated method stub
-		serialPort.close();
+		try {
+			serialPort.closePort();
+		} catch (SerialPortException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 
