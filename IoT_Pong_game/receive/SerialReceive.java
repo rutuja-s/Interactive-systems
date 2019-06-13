@@ -55,40 +55,53 @@ public class SerialReceive implements Receive {
 
 	@Override
 	public void start(String port_name) {
+		Thread thread = new Thread(){
+		    public void run(){
+				remaining_data="";
+				ultrasonic = new Data[4];
+				ultrasonic[0] = new Data();
+				ultrasonic[1] = new Data();
+				ultrasonic[2] = new Data();
+				ultrasonic[3] = new Data();
+				light = new Data();
+				ball_speed = new Data();
 		
-		remaining_data="";
-		ultrasonic = new Data[4];
-		ultrasonic[0] = new Data();
-		ultrasonic[1] = new Data();
-		ultrasonic[2] = new Data();
-		ultrasonic[3] = new Data();
-		light = new Data();
-		ball_speed = new Data();
+				serialPort = new SerialPort(port_name);
+				try {
+					serialPort.openPort();
+		
+					serialPort.setParams(SerialPort.BAUDRATE_9600,
+							SerialPort.DATABITS_8,
+							SerialPort.STOPBITS_1,
+							SerialPort.PARITY_NONE);
+		
+					serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
+							SerialPort.FLOWCONTROL_RTSCTS_OUT);
+					
+					SerialPortReader serialportreader = new SerialPortReader();
+					
+					TimeUnit.MILLISECONDS.sleep(100);
 
-		serialPort = new SerialPort(port_name);
-		try {
-			serialPort.openPort();
+					System.out.println("Start Thread");
+					String receivedData = new String(serialPort.readString());
+					String[] lines = receivedData.split("\r\n");
+					remaining_data = lines[lines.length-1];
+					System.out.println("lines: "+receivedData);
+					System.out.println("remaining: "+remaining_data);
+					
+					
+					serialPort.addEventListener(serialportreader, SerialPort.MASK_RXCHAR);
 
-			serialPort.setParams(SerialPort.BAUDRATE_9600,
-					SerialPort.DATABITS_8,
-					SerialPort.STOPBITS_1,
-					SerialPort.PARITY_NONE);
 
-			serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
-					SerialPort.FLOWCONTROL_RTSCTS_OUT);
-
-			serialPort.addEventListener(new SerialPortReader(), SerialPort.MASK_RXCHAR);
-			TimeUnit.MILLISECONDS.sleep(100);
-			String receivedData = new String(serialPort.readString());
-			String[] lines = receivedData.split("\r\n");
-			remaining_data = lines[lines.length-1];
-			System.out.println("lines: "+receivedData);
-			System.out.println("remaining: "+remaining_data);
-		}catch (SerialPortException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+					TimeUnit.MINUTES.sleep(1);
+				}catch (SerialPortException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		    }
+		};
+		thread.start();
 
 	}
 
@@ -102,7 +115,6 @@ public class SerialReceive implements Receive {
 					TimeUnit.MILLISECONDS.sleep(10);
 					String receivedData = new String(serialPort.readString());
 					parse_read(receivedData);
-					System.out.println("Received response: " + receivedData);
 				}
 				catch (SerialPortException ex) {
 					System.out.println("Error in receiving string from COM-port: " + ex);
@@ -130,7 +142,6 @@ public class SerialReceive implements Receive {
 
 	
 	private static void parse_read(String data) throws IOException {
-		System.out.println("read: "+data);
 		String[] lines = remaining_data.concat(data).split("\r\n");
 		if (data.endsWith("\n")) {
 			for (int i = 0; i < lines.length; i++) {
@@ -146,7 +157,6 @@ public class SerialReceive implements Receive {
 	}
 
 	private static void parse_line(String data) throws IOException {		
-		System.out.println("data" + data);
 		String[] sensor_value = data.split(",");
 		switch(sensor_value[0]) {
 		case "u0" : ultrasonic[0].setData(Integer.parseInt(sensor_value[1]));
@@ -161,7 +171,7 @@ public class SerialReceive implements Receive {
 			break;
 		case "p" : ball_speed.setData(Integer.parseInt(sensor_value[1]));
 			break;
-		default : throw new IOException("Illegal data received: "+sensor_value[0]);
+		default : throw new IOException("Illegal data received: "+sensor_value[0]+" ,Thread: "+Thread.currentThread().getId());
 			
 		}
 		
