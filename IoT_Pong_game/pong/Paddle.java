@@ -10,7 +10,7 @@ public class Paddle
 	
 	private final int OFFSET = 5;
 	
-	private final int RANGE = 50;
+	private final int RANGE = 20;
 
 	public int x, y, width = 50, height = 250;
 
@@ -44,7 +44,7 @@ public class Paddle
 	{
 		int speed = 15;
 		
-		y = ( (position - OFFSET) / RANGE ) * (Pong.pong.height - height);
+		y = (int)(( (position - OFFSET) / (float)(RANGE) ) * (Pong.pong.height - height));
 		
 		if (y < 0) {
 			y = 0;

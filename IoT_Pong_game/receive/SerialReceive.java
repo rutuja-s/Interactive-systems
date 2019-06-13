@@ -112,16 +112,12 @@ public class SerialReceive implements Receive {
 			if(event.isRXCHAR() && event.getEventValue() > 0) {
 				try {
 					//System.out.println("event value" + event.getEventValue() );
-					TimeUnit.MILLISECONDS.sleep(10);
 					String receivedData = new String(serialPort.readString());
 					parse_read(receivedData);
 				}
 				catch (SerialPortException ex) {
 					System.out.println("Error in receiving string from COM-port: " + ex);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -156,7 +152,8 @@ public class SerialReceive implements Receive {
 		}
 	}
 
-	private static void parse_line(String data) throws IOException {		
+	private static void parse_line(String data) throws IOException {
+		System.out.println(data);
 		String[] sensor_value = data.split(",");
 		switch(sensor_value[0]) {
 		case "u0" : ultrasonic[0].setData(Integer.parseInt(sensor_value[1]));
