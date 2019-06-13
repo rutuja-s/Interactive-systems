@@ -14,6 +14,7 @@ public class SerialReceive implements Receive {
 	private static Data[] ultrasonic;
 	private static Data light;
 	private static Data ball_speed;
+	private static String remaining_data;
 
 	@Override
 	public int ultrasonic_0() {
@@ -55,6 +56,7 @@ public class SerialReceive implements Receive {
 	@Override
 	public void start(String port_name) {
 		
+		remaining_data="";
 		ultrasonic = new Data[4];
 		ultrasonic[0] = new Data();
 		ultrasonic[1] = new Data();
@@ -63,7 +65,7 @@ public class SerialReceive implements Receive {
 		light = new Data();
 		ball_speed = new Data();
 
-		serialPort = new SerialPort("/dev/ttyACM0");
+		serialPort = new SerialPort(port_name);
 		try {
 			serialPort.openPort();
 
@@ -76,7 +78,15 @@ public class SerialReceive implements Receive {
 					SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
 			serialPort.addEventListener(new SerialPortReader(), SerialPort.MASK_RXCHAR);
+			TimeUnit.MILLISECONDS.sleep(100);
+			String receivedData = new String(serialPort.readString());
+			String[] lines = receivedData.split("\r\n");
+			remaining_data = lines[lines.length-1];
+			System.out.println("lines: "+receivedData);
+			System.out.println("remaining: "+remaining_data);
 		}catch (SerialPortException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -90,8 +100,8 @@ public class SerialReceive implements Receive {
 				try {
 					//System.out.println("event value" + event.getEventValue() );
 					TimeUnit.MILLISECONDS.sleep(10);
-					String receivedData = serialPort.readString();
-					parse(receivedData);
+					String receivedData = new String(serialPort.readString());
+					parse_read(receivedData);
 					System.out.println("Received response: " + receivedData);
 				}
 				catch (SerialPortException ex) {
@@ -118,8 +128,24 @@ public class SerialReceive implements Receive {
 		}
 	}
 
+	
+	private static void parse_read(String data) throws IOException {
+		System.out.println("read: "+data);
+		String[] lines = remaining_data.concat(data).split("\r\n");
+		if (data.endsWith("\n")) {
+			for (int i = 0; i < lines.length; i++) {
+				parse_line(lines[i]);
+			}
+			remaining_data = "";
+		} else {
+			for (int i = 0; i < lines.length-1; i++) {
+				parse_line(lines[i]);
+			}
+			remaining_data = lines[lines.length-1];
+		}
+	}
 
-	private static void parse(String data) throws IOException {
+	private static void parse_line(String data) throws IOException {		
 		System.out.println("data" + data);
 		String[] sensor_value = data.split(",");
 		switch(sensor_value[0]) {
@@ -135,7 +161,7 @@ public class SerialReceive implements Receive {
 			break;
 		case "p" : ball_speed.setData(Integer.parseInt(sensor_value[1]));
 			break;
-		default : throw new IOException("Illegal data received");
+		default : throw new IOException("Illegal data received: "+sensor_value[0]);
 			
 		}
 		
