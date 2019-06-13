@@ -14,8 +14,12 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import receive.Receive;
+import receive.SerialReceive;
+
 public class Pong implements ActionListener, KeyListener
 {
+	public static Receive receive;
 
 	public static Pong pong;
 
@@ -47,6 +51,8 @@ public class Pong implements ActionListener, KeyListener
 		random = new Random();
 
 		jframe = new JFrame("Pong");
+		
+		
 
 		renderer = new Renderer();
 
@@ -57,6 +63,9 @@ public class Pong implements ActionListener, KeyListener
 		jframe.addKeyListener(this);
 
 		timer.start();
+		
+		receive = new SerialReceive();
+		receive.start("/dev/ttyACM0");
 	}
 
 	public void start()
@@ -80,18 +89,23 @@ public class Pong implements ActionListener, KeyListener
 			gameStatus = 3;
 			playerWon = 2;
 		}
+		
+		
+		
+		player1.move(receive.ultrasonic_0());
 
-		if (w)
+		/*if (w)
 		{
 			player1.move(true);
 		}
 		if (s)
 		{
 			player1.move(false);
-		}
+		}*/
 
 		if (!bot)
 		{
+			/*
 			if (up)
 			{
 				player2.move(true);
@@ -100,6 +114,10 @@ public class Pong implements ActionListener, KeyListener
 			{
 				player2.move(false);
 			}
+			*/
+			
+			player2.move(receive.ultrasonic_1());
+			
 		}
 		else
 		{
@@ -117,13 +135,13 @@ public class Pong implements ActionListener, KeyListener
 			{
 				if (player2.y + player2.height / 2 < ball.y)
 				{
-					player2.move(false);
+					//player2.move(false);
 					botMoves++;
 				}
 
 				if (player2.y + player2.height / 2 > ball.y)
 				{
-					player2.move(true);
+					//player2.move(true);
 					botMoves++;
 				}
 

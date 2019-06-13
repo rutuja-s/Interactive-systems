@@ -7,6 +7,10 @@ public class Paddle
 {
 
 	public int paddleNumber;
+	
+	private final int OFFSET = 5;
+	
+	private final int RANGE = 50;
 
 	public int x, y, width = 50, height = 250;
 
@@ -36,10 +40,20 @@ public class Paddle
 		g.fillRect(x, y, width, height);
 	}
 
-	public void move(boolean up)
+	public void move(int position)
 	{
 		int speed = 15;
-
+		
+		y = ( (position - OFFSET) / RANGE ) * (Pong.pong.height - height);
+		
+		if (y < 0) {
+			y = 0;
+		}
+		else if (y + height > Pong.pong.height) {
+			y = Pong.pong.height - height;
+		}
+		
+/*
 		if (up)
 		{
 			if (y - speed > 0)
@@ -62,6 +76,8 @@ public class Paddle
 				y = Pong.pong.height - height;
 			}
 		}
+		
+		*/
 	}
 
 }
