@@ -118,6 +118,19 @@ public class Paddle
 				}
 				
 			}
+			else {
+				
+				x = (int)(height + ((( (position - OFFSET) / (float)(RANGE) ) * (Pong.pong.width - width - 2*height))));
+
+				if (x < height) {
+					x = height;
+				}
+				else if (x + width > Pong.pong.width - height) {
+					x = Pong.pong.width - height - width;
+				}
+
+				
+			}
 			
 			
 		}
