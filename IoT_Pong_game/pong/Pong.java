@@ -35,10 +35,14 @@ public class Pong implements ActionListener, KeyListener
 	public Paddle player1;
 
 	public Paddle player2;
+	
+	public Paddle player3;
+
+	public Paddle player4;
 
 	public Ball ball;
 
-	public boolean bot = false, selectingDifficulty;
+	public boolean bot = false, selectingDifficulty, four_player = false;
 
 	public boolean w, s, up, down;
 
@@ -93,6 +97,12 @@ public class Pong implements ActionListener, KeyListener
 		gameStatus = 2;
 		player1 = new Paddle(this, 1);
 		player2 = new Paddle(this, 2);
+		if (four_player) {
+			
+			player3 = new Paddle(this, 3);
+			player4 = new Paddle(this, 4);
+		}
+		
 		ball = new Ball(this);
 	}
 
@@ -114,71 +124,18 @@ public class Pong implements ActionListener, KeyListener
 		
 		player1.move(receive.ultrasonic_0());
 
-		/*if (w)
-		{
-			player1.move(true);
-		}
-		if (s)
-		{
-			player1.move(false);
-		}*/
 
 		if (!bot)
 		{
-			/*
-			if (up)
-			{
-				player2.move(true);
-			}
-			if (down)
-			{
-				player2.move(false);
-			}
-			*/
 			
 			player2.move(receive.ultrasonic_1());
 			
 		}
 		else
 		{
-			if (botCooldown > 0)
-			{
-				botCooldown--;
-
-				if (botCooldown == 0)
-				{
-					botMoves = 0;
-				}
-			}
-
-			if (botMoves < 10)
-			{
-				if (player2.y + player2.height / 2 < ball.y)
-				{
-					//player2.move(false);
-					botMoves++;
-				}
-
-				if (player2.y + player2.height / 2 > ball.y)
-				{
-					//player2.move(true);
-					botMoves++;
-				}
-
-				if (botDifficulty == 0)
-				{
-					botCooldown = 20;
-				}
-				if (botDifficulty == 1)
-				{
-					botCooldown = 15;
-				}
-				if (botDifficulty == 2)
-				{
-					botCooldown = 10;
-				}
-			}
-		}
+			player3.move(receive.ultrasonic_2());
+			player4.move(receive.ultrasonic_3());
+					}
 
 		ball.update(player1, player2);
 	}
@@ -201,7 +158,7 @@ public class Pong implements ActionListener, KeyListener
 				g.setFont(new Font("Arial", 1, 30));
 
 				g.drawString("Press Space to Play", width / 2 - 150, height / 2 - 25);
-				g.drawString("Press Shift to Play with Bot", width / 2 - 200, height / 2 + 25);
+				g.drawString("Press Shift for 4 player", width / 2 - 200, height / 2 + 25);
 				g.drawString("<< Score Limit: " + scoreLimit + " >>", width / 2 - 150, height / 2 + 75);
 			}
 		}
@@ -242,6 +199,10 @@ public class Pong implements ActionListener, KeyListener
 
 			player1.render(g);
 			player2.render(g);
+			if (four_player) {
+				player3.render(g);
+				player4.render(g);
+			}
 			ball.render(g);
 		}
 
@@ -347,6 +308,7 @@ public class Pong implements ActionListener, KeyListener
 		}
 		else if (id == KeyEvent.VK_SHIFT && gameStatus == 0)
 		{
+			four_player = true;
 			bot = true;
 			selectingDifficulty = true;
 		}
