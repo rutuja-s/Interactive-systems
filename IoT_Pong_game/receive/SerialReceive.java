@@ -83,7 +83,11 @@ public class SerialReceive implements Receive {
 					TimeUnit.MILLISECONDS.sleep(100);
 
 					System.out.println("Start Thread");
-					String receivedData = new String(serialPort.readString());
+					String receivedData = null;
+					while (receivedData == null) {
+					 receivedData = serialPort.readString();
+					}
+					receivedData = new String(receivedData);
 					String[] lines = receivedData.split("\r\n");
 					remaining_data = lines[lines.length-1];
 					System.out.println("lines: "+receivedData);
@@ -153,7 +157,7 @@ public class SerialReceive implements Receive {
 	}
 
 	private static void parse_line(String data) throws IOException {
-		System.out.println(data);
+		System.out.println("data:"+data);
 		String[] sensor_value = data.split(",");
 		switch(sensor_value[0]) {
 		case "u0" : ultrasonic[0].setData(Integer.parseInt(sensor_value[1]));
