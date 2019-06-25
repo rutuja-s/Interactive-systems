@@ -123,19 +123,12 @@ public class Pong implements ActionListener, KeyListener
 		
 		
 		player1.move(receive.ultrasonic_0());
+		player2.move(receive.ultrasonic_1());
 
-
-		if (!bot)
-		{
-			
-			player2.move(receive.ultrasonic_1());
-			
-		}
-		else
-		{
+		if(bot) {
 			player3.move(receive.ultrasonic_2());
 			player4.move(receive.ultrasonic_3());
-					}
+		}
 
 		ball.update(player1, player2);
 	}

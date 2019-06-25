@@ -3,8 +3,6 @@ package pong;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import com.sun.org.apache.xpath.internal.FoundIndex;
-
 public class Paddle
 {
 
@@ -94,6 +92,8 @@ public class Paddle
 	{
 		int speed = 15;
 
+		System.out.println("Test: "+paddleNumber);
+		
 		if(!pong.four_player) {
 
 			y = (int)(( (position - OFFSET) / (float)(RANGE) ) * (Pong.pong.height - height));
