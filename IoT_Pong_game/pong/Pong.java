@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowListener;
@@ -94,6 +96,25 @@ public class Pong implements ActionListener, KeyListener {
 
 		WindowListener pongWindowListener = new PongWindowListener(receive);
 		jframe.addWindowListener(pongWindowListener);
+
+		jframe.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent componentEvent) {
+
+				if (four_player) {
+					int min = Integer.min(jframe.getHeight() - 35, jframe.getWidth() - 15);
+					pong.height = min;
+					pong.width = min;
+					player3 = new Paddle(pong, 3);
+					player4 = new Paddle(pong, 4);
+				} else {
+
+					pong.height = jframe.getHeight() - 35;
+					pong.width = jframe.getWidth() - 15;
+				}
+				player1 = new Paddle(pong, 1);
+				player2 = new Paddle(pong, 2);
+			}
+		});
 	}
 
 	public void start() {
