@@ -23,8 +23,10 @@ import javax.swing.Timer;
 import receive.Receive;
 import receive.SerialReceive;
 
-public class Pong implements ActionListener, KeyListener
-{
+public class Pong implements ActionListener, KeyListener {
+
+	public final Color PaddleColor[] = { Color.CYAN, Color.RED, Color.YELLOW, Color.MAGENTA };
+
 	public static Receive receive;
 
 	public static Pong pong;
@@ -36,7 +38,7 @@ public class Pong implements ActionListener, KeyListener
 	public Paddle player1;
 
 	public Paddle player2;
-	
+
 	public Paddle player3;
 
 	public Paddle player4;
@@ -47,7 +49,7 @@ public class Pong implements ActionListener, KeyListener
 
 	public boolean w, s, up, down;
 
-	public int gameStatus = 0, scoreLimit = 7, playerWon; //0 = Menu, 1 = Paused, 2 = Playing, 3 = Over
+	public int gameStatus = 0, scoreLimit = 7, playerWon; // 0 = Menu, 1 = Paused, 2 = Playing, 3 = Over
 
 	public int botDifficulty, botMoves, botCooldown = 0;
 
@@ -55,8 +57,7 @@ public class Pong implements ActionListener, KeyListener
 
 	public JFrame jframe;
 
-	public Pong()
-	{
+	public Pong() {
 		Timer timer = new Timer(20, this);
 		random = new Random();
 
@@ -71,7 +72,7 @@ public class Pong implements ActionListener, KeyListener
 		jframe.addKeyListener(this);
 
 		timer.start();
-		
+
 		File file = new File("./port.txt");
 		String port = null;
 		try {
@@ -90,67 +91,69 @@ public class Pong implements ActionListener, KeyListener
 			receive = new SerialReceive();
 			receive.start(port);
 		}
-		
+
 		WindowListener pongWindowListener = new PongWindowListener(receive);
 		jframe.addWindowListener(pongWindowListener);
 	}
 
-	public void start()
-	{
+	public void start() {
 		gameStatus = 2;
 		player1 = new Paddle(this, 1);
 		player2 = new Paddle(this, 2);
 		if (four_player) {
-			
+
 			player3 = new Paddle(this, 3);
 			player4 = new Paddle(this, 4);
 		}
-		
+
 		ball = new Ball(this);
 	}
 
-	public void update()
-	{
-		if (player1.score >= scoreLimit)
-		{
+	public void update() {
+		if (player1.score >= scoreLimit) {
 			playerWon = 1;
 			gameStatus = 3;
 		}
-
-		if (player2.score >= scoreLimit)
-		{
-			gameStatus = 3;
+		if (player2.score >= scoreLimit) {
 			playerWon = 2;
+			gameStatus = 3;
 		}
-		
-		
-		
+		if (four_player) {
+			if (player3.score >= scoreLimit) {
+				playerWon = 3;
+				gameStatus = 3;
+			}
+			if (player4.score >= scoreLimit) {
+				playerWon = 4;
+				gameStatus = 3;
+			}
+		}
+
 		player1.move(receive.ultrasonic_0());
 		player2.move(receive.ultrasonic_1());
 
-		if(bot) {
+		if (four_player) {
 			player3.move(receive.ultrasonic_2());
 			player4.move(receive.ultrasonic_3());
 		}
-
-		ball.update(player1, player2);
+		if (four_player)
+			ball.update(player1, player2, player3, player4);
+		else
+			ball.update(player1, player2);
 	}
 
-	public void render(Graphics2D g)
-	{
+	public void render(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, width, height);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		if (gameStatus == 0)
-		{
+		if (gameStatus == 0) {
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", 1, 50));
 
 			g.drawString("PONG", width / 2 - 75, 50);
 
-			if (!selectingDifficulty)
-			{
+			if (!selectingDifficulty) {
 				g.setFont(new Font("Arial", 1, 30));
 
 				g.drawString("Press Space to Play", width / 2 - 150, height / 2 - 25);
@@ -159,8 +162,7 @@ public class Pong implements ActionListener, KeyListener
 			}
 		}
 
-		if (selectingDifficulty)
-		{
+		if (selectingDifficulty) {
 			String string = botDifficulty == 0 ? "Easy" : (botDifficulty == 1 ? "Medium" : "Hard");
 
 			g.setFont(new Font("Arial", 1, 30));
@@ -169,29 +171,45 @@ public class Pong implements ActionListener, KeyListener
 			g.drawString("Press Space to Play", width / 2 - 150, height / 2 + 25);
 		}
 
-		if (gameStatus == 1)
-		{
+		if (gameStatus == 1) {
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", 1, 50));
 			g.drawString("PAUSED", width / 2 - 103, height / 2 - 25);
 		}
 
-		if (gameStatus == 1 || gameStatus == 2)
-		{
+		if (gameStatus == 1 || gameStatus == 2) {
 			g.setColor(Color.WHITE);
 
-			g.setStroke(new BasicStroke(5f));
+			if (four_player) {
+				float dash_pattern[] = { 25, 50 };
+				g.setStroke(new BasicStroke(5f, 2, 1, 0, dash_pattern, 0));
+				g.drawLine(width / 2, 0, width / 2, height);
+				g.drawLine(0, height / 2, width, height / 2);
 
-			g.drawLine(width / 2, 0, width / 2, height);
+			} else {
+				g.setStroke(new BasicStroke(5f));
+				g.drawLine(width / 2, 0, width / 2, height);
 
-			g.setStroke(new BasicStroke(2f));
-
-			g.drawOval(width / 2 - 150, height / 2 - 150, 300, 300);
+				g.setStroke(new BasicStroke(2f));
+				g.drawOval(width / 2 - 150, height / 2 - 150, 300, 300);
+			}
 
 			g.setFont(new Font("Arial", 1, 50));
 
-			g.drawString(String.valueOf(player1.score), width / 2 - 90, 50);
-			g.drawString(String.valueOf(player2.score), width / 2 + 65, 50);
+			if (four_player) {
+				g.setColor(PaddleColor[0]);
+				g.drawString(String.valueOf(player1.score), player1.width + 25, height / 2 - 10);
+				g.setColor(PaddleColor[1]);
+				g.drawString(String.valueOf(player2.score), width - player2.width - 50, height / 2 - 10);
+				g.setColor(PaddleColor[2]);
+				g.drawString(String.valueOf(player3.score), width / 2 + 10, player3.height + 25);
+				g.setColor(PaddleColor[3]);
+				g.drawString(String.valueOf(player4.score), width / 2 + 10, height - player4.height - 25);
+				g.setColor(Color.WHITE);
+			} else {
+				g.drawString(String.valueOf(player1.score), width / 2 - 90, 50);
+				g.drawString(String.valueOf(player2.score), width / 2 + 65, 50);
+			}
 
 			player1.render(g);
 			player2.render(g);
@@ -202,19 +220,15 @@ public class Pong implements ActionListener, KeyListener
 			ball.render(g);
 		}
 
-		if (gameStatus == 3)
-		{
+		if (gameStatus == 3) {
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", 1, 50));
 
 			g.drawString("PONG", width / 2 - 75, 50);
 
-			if (bot && playerWon == 2)
-			{
+			if (bot && playerWon == 2) {
 				g.drawString("The Bot Wins!", width / 2 - 170, 200);
-			}
-			else
-			{
+			} else {
 				g.drawString("Player " + playerWon + " Wins!", width / 2 - 165, 200);
 			}
 
@@ -226,140 +240,90 @@ public class Pong implements ActionListener, KeyListener
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		if (gameStatus == 2)
-		{
+	public void actionPerformed(ActionEvent e) {
+		if (gameStatus == 2) {
 			update();
 		}
 
 		renderer.repaint();
 	}
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		pong = new Pong();
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e)
-	{
+	public void keyPressed(KeyEvent e) {
 		int id = e.getKeyCode();
 
-		if (id == KeyEvent.VK_W)
-		{
+		if (id == KeyEvent.VK_W) {
 			w = true;
-		}
-		else if (id == KeyEvent.VK_S)
-		{
+		} else if (id == KeyEvent.VK_S) {
 			s = true;
-		}
-		else if (id == KeyEvent.VK_UP)
-		{
+		} else if (id == KeyEvent.VK_UP) {
 			up = true;
-		}
-		else if (id == KeyEvent.VK_DOWN)
-		{
+		} else if (id == KeyEvent.VK_DOWN) {
 			down = true;
-		}
-		else if (id == KeyEvent.VK_RIGHT)
-		{
-			if (selectingDifficulty)
-			{
-				if (botDifficulty < 2)
-				{
+		} else if (id == KeyEvent.VK_RIGHT) {
+			if (selectingDifficulty) {
+				if (botDifficulty < 2) {
 					botDifficulty++;
-				}
-				else
-				{
+				} else {
 					botDifficulty = 0;
 				}
-			}
-			else if (gameStatus == 0)
-			{
+			} else if (gameStatus == 0) {
 				scoreLimit++;
 			}
-		}
-		else if (id == KeyEvent.VK_LEFT)
-		{
-			if (selectingDifficulty)
-			{
-				if (botDifficulty > 0)
-				{
+		} else if (id == KeyEvent.VK_LEFT) {
+			if (selectingDifficulty) {
+				if (botDifficulty > 0) {
 					botDifficulty--;
-				}
-				else
-				{
+				} else {
 					botDifficulty = 2;
 				}
-			}
-			else if (gameStatus == 0 && scoreLimit > 1)
-			{
+			} else if (gameStatus == 0 && scoreLimit > 1) {
 				scoreLimit--;
 			}
-		}
-		else if (id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3))
-		{
+		} else if (id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3)) {
 			gameStatus = 0;
-		}
-		else if (id == KeyEvent.VK_SHIFT && gameStatus == 0)
-		{
+		} else if (id == KeyEvent.VK_SHIFT && gameStatus == 0) {
 			four_player = true;
 			bot = true;
 			selectingDifficulty = true;
-		}
-		else if (id == KeyEvent.VK_SPACE)
-		{
-			if (gameStatus == 0 || gameStatus == 3)
-			{
-				if (!selectingDifficulty)
-				{
+		} else if (id == KeyEvent.VK_SPACE) {
+			if (gameStatus == 0 || gameStatus == 3) {
+				if (!selectingDifficulty) {
 					bot = false;
-				}
-				else
-				{
+				} else {
 					selectingDifficulty = false;
 				}
 
 				start();
-			}
-			else if (gameStatus == 1)
-			{
+			} else if (gameStatus == 1) {
 				gameStatus = 2;
-			}
-			else if (gameStatus == 2)
-			{
+			} else if (gameStatus == 2) {
 				gameStatus = 1;
 			}
 		}
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e)
-	{
+	public void keyReleased(KeyEvent e) {
 		int id = e.getKeyCode();
 
-		if (id == KeyEvent.VK_W)
-		{
+		if (id == KeyEvent.VK_W) {
 			w = false;
-		}
-		else if (id == KeyEvent.VK_S)
-		{
+		} else if (id == KeyEvent.VK_S) {
 			s = false;
-		}
-		else if (id == KeyEvent.VK_UP)
-		{
+		} else if (id == KeyEvent.VK_UP) {
 			up = false;
-		}
-		else if (id == KeyEvent.VK_DOWN)
-		{
+		} else if (id == KeyEvent.VK_DOWN) {
 			down = false;
 		}
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e)
-	{
+	public void keyTyped(KeyEvent e) {
 
 	}
 }

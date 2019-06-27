@@ -3,8 +3,7 @@ package pong;
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class Paddle
-{
+public class Paddle {
 
 	public int paddleNumber;
 
@@ -18,108 +17,89 @@ public class Paddle
 
 	private Pong pong;
 
-	public Paddle(Pong pong, int paddleNumber)
-	{
+	public Paddle(Pong pong, int paddleNumber) {
 		this.pong = pong;
 		this.paddleNumber = paddleNumber;
 
-
-
-
 		if (pong.four_player) {
 
-
-			//System.out.println("4 player");
-			if (paddleNumber == 1)
-			{
+			// System.out.println("4 player");
+			if (paddleNumber == 1) {
 				this.x = 0;
 				this.y = width;
 			}
 
-			if (paddleNumber == 2)
-			{
+			if (paddleNumber == 2) {
 				this.x = pong.width - width;
 				this.y = width;
 			}
-			if (paddleNumber == 3)
-			{
+			if (paddleNumber == 3) {
 				width = 250;
 				height = 50;
 				this.x = height;
 				this.y = 0;
-				//System.out.println("value3" + this.y);
+				// System.out.println("value3" + this.y);
 
 			}
 
-			if (paddleNumber == 4)
-			{
+			if (paddleNumber == 4) {
 				width = 250;
 				height = 50;
 				this.x = height;
 				this.y = pong.height - height;
-				//System.out.println("value4" + this.y);
+				// System.out.println("value4" + this.y);
 			}
 
-		}
-		else {
-			if (paddleNumber == 1)
-			{
+		} else {
+			if (paddleNumber == 1) {
 				this.x = 0;
 			}
 
-			if (paddleNumber == 2)
-			{
+			if (paddleNumber == 2) {
 				this.x = pong.width - width;
 			}
 
 			this.y = pong.height / 2 - this.height / 2;
 		}
 
-
 	}
 
-	public void render(Graphics g)
-	{
-
-		g.setColor(Color.WHITE);
-
+	public void render(Graphics g) {
+		if (pong.four_player) {
+			g.setColor(pong.PaddleColor[paddleNumber - 1]);
+		} else {
+			g.setColor(Color.WHITE);
+		}
 		g.fillRect(x, y, width, height);
-
-
 	}
 
-	public void move(int position)
-	{
+	public void move(int position) {
 		int speed = 15;
 
-		System.out.println("Test: "+paddleNumber);
-		
-		if(!pong.four_player) {
+		System.out.println("Test: " + paddleNumber);
 
-			y = (int)(( (position - OFFSET) / (float)(RANGE) ) * (Pong.pong.height - height));
+		if (!pong.four_player) {
+
+			y = (int) (((position - OFFSET) / (float) (RANGE)) * (Pong.pong.height - height));
 
 			if (y < 0) {
 				y = 0;
-			}
-			else if (y + height > Pong.pong.height) {
+			} else if (y + height > Pong.pong.height) {
 				y = Pong.pong.height - height;
 			}
 
-		}
-		else {
-			if(paddleNumber==1 || paddleNumber==2) {
-				y = (int)(width + ((( (position - OFFSET) / (float)(RANGE) ) * (Pong.pong.height - height - 2*width))));
+		} else {
+			if (paddleNumber == 1 || paddleNumber == 2) {
+				y = (int) (width + ((((position - OFFSET) / (float) (RANGE)) * (Pong.pong.height - height - 2 * width))));
 
 				if (y < width) {
 					y = width;
-				}
-				else if (y + height > Pong.pong.height - width) {
+				} else if (y + height > Pong.pong.height - width) {
 					y = Pong.pong.height - height - width;
 				}
-				
+
 			}
-			
-			
+
 		}
 
 	}
