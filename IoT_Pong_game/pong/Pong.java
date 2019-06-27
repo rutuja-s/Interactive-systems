@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -60,8 +61,6 @@ public class Pong implements ActionListener, KeyListener
 		random = new Random();
 
 		jframe = new JFrame("Pong");
-		
-		
 
 		renderer = new Renderer();
 
@@ -78,6 +77,7 @@ public class Pong implements ActionListener, KeyListener
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			port = br.readLine();
+			br.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("port.txt does not exist");
 			System.exit(0);
@@ -90,6 +90,9 @@ public class Pong implements ActionListener, KeyListener
 			receive = new SerialReceive();
 			receive.start(port);
 		}
+		
+		WindowListener pongWindowListener = new PongWindowListener(receive);
+		jframe.addWindowListener(pongWindowListener);
 	}
 
 	public void start()
