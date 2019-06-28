@@ -1,8 +1,9 @@
 package pong;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Random;
+
+import receive.Receive;
 
 public class Ball {
 
@@ -20,8 +21,12 @@ public class Ball {
 
 	private int speed = 5;
 
+	private Receive receive;
+
 	public Ball(Pong pong) {
 		this.pong = pong;
+
+		this.receive = pong.receive;
 
 		this.random = new Random();
 
@@ -29,6 +34,7 @@ public class Ball {
 	}
 
 	public void update(Paddle paddle1, Paddle paddle2) {
+		// speed = 20 * (receive.ball_speed());
 		this.x += motionX * speed;
 		this.y += motionY * speed;
 
@@ -166,7 +172,7 @@ public class Ball {
 		if (pong.four_player && lastHit != 0) {
 			g.setColor(pong.PaddleColor[lastHit - 1]);
 		} else {
-			g.setColor(Color.WHITE);
+			g.setColor(pong.ballColor);
 		}
 		g.fillOval(x, y, width, height);
 	}

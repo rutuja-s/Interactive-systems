@@ -1,9 +1,10 @@
 package pong;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 public class Paddle {
+
+	private final int StandardWidth = 25, StandardHeight = 250;
 
 	public int paddleNumber;
 
@@ -11,7 +12,7 @@ public class Paddle {
 
 	private final int RANGE = 20;
 
-	public int x, y, width = 50, height = 250;
+	public int x, y, width = StandardWidth, height = StandardHeight;
 
 	public int score;
 
@@ -22,8 +23,6 @@ public class Paddle {
 		this.paddleNumber = paddleNumber;
 
 		if (pong.four_player) {
-
-			// System.out.println("4 player");
 			if (paddleNumber == 1) {
 				this.x = 0;
 				this.y = width;
@@ -34,20 +33,17 @@ public class Paddle {
 				this.y = width;
 			}
 			if (paddleNumber == 3) {
-				width = 250;
-				height = 50;
+				width = StandardHeight;
+				height = StandardWidth;
 				this.x = height;
 				this.y = 0;
-				// System.out.println("value3" + this.y);
-
 			}
 
 			if (paddleNumber == 4) {
-				width = 250;
-				height = 50;
+				width = StandardHeight;
+				height = StandardWidth;
 				this.x = height;
 				this.y = pong.height - height;
-				// System.out.println("value4" + this.y);
 			}
 
 		} else {
@@ -68,19 +64,16 @@ public class Paddle {
 		if (pong.four_player) {
 			g.setColor(pong.PaddleColor[paddleNumber - 1]);
 		} else {
-			g.setColor(Color.WHITE);
+			g.setColor(pong.defaultPaddleColor);
 		}
 		g.fillRect(x, y, width, height);
 	}
 
 	public void move(int position) {
 		int speed = 15;
-
-		System.out.println("Test: " + paddleNumber);
-
 		if (!pong.four_player) {
 
-			y = (int) (((position - OFFSET) / (float) (RANGE)) * (Pong.pong.height - height));
+			y = (Pong.pong.height - height) - (int) (((position - OFFSET) / (float) (RANGE)) * (Pong.pong.height - height));
 
 			if (y < 0) {
 				y = 0;
@@ -90,7 +83,8 @@ public class Paddle {
 
 		} else {
 			if (paddleNumber == 1 || paddleNumber == 2) {
-				y = (int) (width + ((((position - OFFSET) / (float) (RANGE)) * (Pong.pong.height - height - 2 * width))));
+				y = (Pong.pong.height - height - 2 * width)
+						- (int) (width + ((((position - OFFSET) / (float) (RANGE)) * (Pong.pong.height - height - 2 * width))));
 
 				if (y < width) {
 					y = width;
@@ -101,20 +95,16 @@ public class Paddle {
 			}
 
 			else {
-				
-				x = (int)(height + ((( (position - OFFSET) / (float)(RANGE) ) * (Pong.pong.width - width - 2*height))));
+
+				x = (int) (height + ((((position - OFFSET) / (float) (RANGE)) * (Pong.pong.width - width - 2 * height))));
 
 				if (x < height) {
 					x = height;
-				}
-				else if (x + width > Pong.pong.width - height) {
+				} else if (x + width > Pong.pong.width - height) {
 					x = Pong.pong.width - height - width;
 				}
 
-				
 			}
-			
-			
 
 		}
 

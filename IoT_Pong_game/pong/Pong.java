@@ -27,7 +27,9 @@ import receive.SerialReceive;
 
 public class Pong implements ActionListener, KeyListener {
 
-	public final Color PaddleColor[] = { Color.CYAN, Color.RED, Color.YELLOW, Color.MAGENTA };
+	public final Color PaddleColor[] = { Color.CYAN, Color.RED, Color.YELLOW, Color.GREEN };
+
+	public Color backgroundColor = Color.WHITE, contrastColor = Color.BLACK, ballColor = Color.BLACK, defaultPaddleColor = Color.BLACK;
 
 	public static Receive receive;
 
@@ -164,12 +166,23 @@ public class Pong implements ActionListener, KeyListener {
 	}
 
 	public void render(Graphics2D g) {
-		g.setColor(Color.BLACK);
+		if (receive.ambient_light() == 0) {
+			defaultPaddleColor = Color.WHITE;
+			ballColor = Color.WHITE;
+			backgroundColor = Color.BLACK;
+			contrastColor = Color.WHITE;
+		} else {
+			defaultPaddleColor = Color.BLACK;
+			ballColor = Color.BLACK;
+			backgroundColor = Color.WHITE;
+			contrastColor = Color.BLACK;
+		}
+		g.setColor(backgroundColor);
 		g.fillRect(0, 0, width, height);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		if (gameStatus == 0) {
-			g.setColor(Color.WHITE);
+			g.setColor(contrastColor);
 			g.setFont(new Font("Arial", 1, 50));
 
 			g.drawString("PONG", width / 2 - 75, 50);
@@ -193,13 +206,15 @@ public class Pong implements ActionListener, KeyListener {
 		}
 
 		if (gameStatus == 1) {
-			g.setColor(Color.WHITE);
+			g.setColor(contrastColor);
 			g.setFont(new Font("Arial", 1, 50));
 			g.drawString("PAUSED", width / 2 - 103, height / 2 - 25);
 		}
 
 		if (gameStatus == 1 || gameStatus == 2) {
-			g.setColor(Color.WHITE);
+			g.setColor(backgroundColor);
+			g.fillRect(0, 0, width, height);
+			g.setColor(contrastColor);
 
 			if (four_player) {
 				float dash_pattern[] = { 25, 50 };
@@ -226,7 +241,7 @@ public class Pong implements ActionListener, KeyListener {
 				g.drawString(String.valueOf(player3.score), width / 2 + 10, player3.height + 25);
 				g.setColor(PaddleColor[3]);
 				g.drawString(String.valueOf(player4.score), width / 2 + 10, height - player4.height - 25);
-				g.setColor(Color.WHITE);
+				g.setColor(contrastColor);
 			} else {
 				g.drawString(String.valueOf(player1.score), width / 2 - 90, 50);
 				g.drawString(String.valueOf(player2.score), width / 2 + 65, 50);
@@ -242,7 +257,7 @@ public class Pong implements ActionListener, KeyListener {
 		}
 
 		if (gameStatus == 3) {
-			g.setColor(Color.WHITE);
+			g.setColor(contrastColor);
 			g.setFont(new Font("Arial", 1, 50));
 
 			g.drawString("PONG", width / 2 - 75, 50);
@@ -307,6 +322,7 @@ public class Pong implements ActionListener, KeyListener {
 			}
 		} else if (id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3)) {
 			gameStatus = 0;
+			four_player = false;
 		} else if (id == KeyEvent.VK_SHIFT && gameStatus == 0) {
 			four_player = true;
 			bot = true;
