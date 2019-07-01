@@ -101,34 +101,34 @@ public class Pong implements ActionListener, KeyListener {
 
 		jframe.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent componentEvent) {
-
-				if (four_player) {
-					int min = Integer.min(jframe.getHeight() - 35, jframe.getWidth() - 15);
-					pong.height = min;
-					pong.width = min;
-					player3 = new Paddle(pong, 3);
-					player4 = new Paddle(pong, 4);
-				} else {
-
-					pong.height = jframe.getHeight() - 35;
-					pong.width = jframe.getWidth() - 15;
-				}
-				player1 = new Paddle(pong, 1);
-				player2 = new Paddle(pong, 2);
+				resize();
 			}
 		});
 	}
 
+	public void resize() {
+		if (gameStatus == 1 || gameStatus == 2) {
+			if (four_player) {
+				int min = Integer.min(jframe.getHeight() - 35, jframe.getWidth() - 15);
+				pong.height = min;
+				pong.width = min;
+				player3 = new Paddle(pong, 3);
+				player4 = new Paddle(pong, 4);
+			} else {
+				pong.height = jframe.getHeight() - 35;
+				pong.width = jframe.getWidth() - 15;
+			}
+			player1 = new Paddle(pong, 1);
+			player2 = new Paddle(pong, 2);
+		} else {
+			pong.height = jframe.getHeight() - 35;
+			pong.width = jframe.getWidth() - 15;
+		}
+	}
+
 	public void start() {
 		gameStatus = 2;
-		player1 = new Paddle(this, 1);
-		player2 = new Paddle(this, 2);
-		if (four_player) {
-
-			player3 = new Paddle(this, 3);
-			player4 = new Paddle(this, 4);
-		}
-
+		resize();
 		ball = new Ball(this);
 	}
 
@@ -178,10 +178,11 @@ public class Pong implements ActionListener, KeyListener {
 			contrastColor = Color.BLACK;
 		}
 		g.setColor(backgroundColor);
-		g.fillRect(0, 0, width, height);
+		g.fillRect(0, 0, jframe.getWidth(), jframe.getHeight());
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		if (gameStatus == 0) {
+			resize();
 			g.setColor(contrastColor);
 			g.setFont(new Font("Arial", 1, 50));
 
@@ -257,6 +258,7 @@ public class Pong implements ActionListener, KeyListener {
 		}
 
 		if (gameStatus == 3) {
+			resize();
 			g.setColor(contrastColor);
 			g.setFont(new Font("Arial", 1, 50));
 
