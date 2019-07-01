@@ -66,7 +66,7 @@ public class Paddle {
 		} else {
 			g.setColor(pong.defaultPaddleColor);
 		}
-		g.fillRect(x, y, width, height);
+		g.fillRect(x + pong.xOffset, y + pong.yOffset, width, height);
 	}
 
 	public void move(int position) {

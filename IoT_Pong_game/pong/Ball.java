@@ -174,7 +174,7 @@ public class Ball {
 		} else {
 			g.setColor(pong.ballColor);
 		}
-		g.fillOval(x, y, width, height);
+		g.fillOval(x + pong.xOffset, y + pong.yOffset, width, height);
 	}
 
 }

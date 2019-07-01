@@ -29,6 +29,8 @@ public class Pong implements ActionListener, KeyListener {
 
 	public final Color PaddleColor[] = { Color.CYAN, Color.RED, Color.YELLOW, Color.GREEN };
 
+	public int xOffset = 0, yOffset = 0;
+
 	public Color backgroundColor = Color.WHITE, contrastColor = Color.BLACK, ballColor = Color.BLACK, defaultPaddleColor = Color.BLACK;
 
 	public static Receive receive;
@@ -74,6 +76,7 @@ public class Pong implements ActionListener, KeyListener {
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.add(renderer);
 		jframe.addKeyListener(this);
+		jframe.setBackground(Color.BLACK);
 
 		timer.start();
 
@@ -177,6 +180,7 @@ public class Pong implements ActionListener, KeyListener {
 			backgroundColor = Color.WHITE;
 			contrastColor = Color.BLACK;
 		}
+		g.setBackground(Color.BLACK);
 		g.setColor(backgroundColor);
 		g.fillRect(0, 0, jframe.getWidth(), jframe.getHeight());
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -213,39 +217,41 @@ public class Pong implements ActionListener, KeyListener {
 		}
 
 		if (gameStatus == 1 || gameStatus == 2) {
+			xOffset = (jframe.getWidth() - width) / 2;
+			yOffset = (jframe.getHeight() - height) / 2;
 			g.setColor(backgroundColor);
-			g.fillRect(0, 0, width, height);
+			g.fillRect(xOffset, yOffset, width, height);
 			g.setColor(contrastColor);
 
 			if (four_player) {
 				float dash_pattern[] = { 25, 50 };
 				g.setStroke(new BasicStroke(5f, 2, 1, 0, dash_pattern, 0));
-				g.drawLine(width / 2, 0, width / 2, height);
-				g.drawLine(0, height / 2, width, height / 2);
+				g.drawLine(width / 2 + xOffset, yOffset, width / 2 + xOffset, height + yOffset);
+				g.drawLine(xOffset, height / 2 + yOffset, width + xOffset, height / 2 + yOffset);
 
 			} else {
 				g.setStroke(new BasicStroke(5f));
-				g.drawLine(width / 2, 0, width / 2, height);
+				g.drawLine(width / 2 + xOffset, yOffset, width / 2 + xOffset, height + yOffset);
 
 				g.setStroke(new BasicStroke(2f));
-				g.drawOval(width / 2 - 150, height / 2 - 150, 300, 300);
+				g.drawOval(width / 2 - 150 + xOffset, height / 2 - 150 + yOffset, 300, 300);
 			}
 
 			g.setFont(new Font("Arial", 1, 50));
 
 			if (four_player) {
 				g.setColor(PaddleColor[0]);
-				g.drawString(String.valueOf(player1.score), player1.width + 25, height / 2 - 10);
+				g.drawString(String.valueOf(player1.score), player1.width + 25 + xOffset, height / 2 - 10 + yOffset);
 				g.setColor(PaddleColor[1]);
-				g.drawString(String.valueOf(player2.score), width - player2.width - 50, height / 2 - 10);
+				g.drawString(String.valueOf(player2.score), width - player2.width - 50 + xOffset, height / 2 - 10 + yOffset);
 				g.setColor(PaddleColor[2]);
-				g.drawString(String.valueOf(player3.score), width / 2 + 10, player3.height + 25);
+				g.drawString(String.valueOf(player3.score), width / 2 + 10 + xOffset, player3.height + 25 + yOffset);
 				g.setColor(PaddleColor[3]);
-				g.drawString(String.valueOf(player4.score), width / 2 + 10, height - player4.height - 25);
+				g.drawString(String.valueOf(player4.score), width / 2 + 10 + xOffset, height - player4.height - 25 + yOffset);
 				g.setColor(contrastColor);
 			} else {
-				g.drawString(String.valueOf(player1.score), width / 2 - 90, 50);
-				g.drawString(String.valueOf(player2.score), width / 2 + 65, 50);
+				g.drawString(String.valueOf(player1.score), width / 2 - 90 + xOffset, 50 + yOffset);
+				g.drawString(String.valueOf(player2.score), width / 2 + 65 + xOffset, 50 + yOffset);
 			}
 
 			player1.render(g);
