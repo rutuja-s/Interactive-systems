@@ -61,11 +61,11 @@ public class Paddle {
 	}
 
 	public void render(Graphics g) {
-		if (pong.four_player) {
-			g.setColor(pong.PaddleColor[paddleNumber - 1]);
-		} else {
-			g.setColor(pong.defaultPaddleColor);
-		}
+		// if (pong.four_player) {
+		g.setColor(pong.PaddleColor[paddleNumber - 1]);
+		// } else {
+		// g.setColor(pong.defaultPaddleColor);
+		// }
 		g.fillRect(x + pong.xOffset, y + pong.yOffset, width, height);
 	}
 

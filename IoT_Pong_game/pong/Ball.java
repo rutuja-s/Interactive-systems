@@ -34,7 +34,7 @@ public class Ball {
 	}
 
 	public void update(Paddle paddle1, Paddle paddle2) {
-		// speed = 20 * (receive.ball_speed());
+		speed = (int) (18 * (receive.ball_speed() / 1023.0)) + 3;
 		this.x += motionX * speed;
 		this.y += motionY * speed;
 
@@ -169,7 +169,7 @@ public class Ball {
 	}
 
 	public void render(Graphics g) {
-		if (pong.four_player && lastHit != 0) {
+		if ( /* pong.four_player && */ lastHit != 0) {
 			g.setColor(pong.PaddleColor[lastHit - 1]);
 		} else {
 			g.setColor(pong.ballColor);

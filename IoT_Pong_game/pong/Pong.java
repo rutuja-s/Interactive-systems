@@ -22,6 +22,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import jssc.SerialPortException;
 import receive.Receive;
 import receive.SerialReceive;
 
@@ -135,23 +136,27 @@ public class Pong implements ActionListener, KeyListener {
 		ball = new Ball(this);
 	}
 
-	public void update() {
+	public void update() throws SerialPortException {
 		if (player1.score >= scoreLimit) {
 			playerWon = 1;
 			gameStatus = 3;
+			receive.winner(playerWon);
 		}
 		if (player2.score >= scoreLimit) {
 			playerWon = 2;
 			gameStatus = 3;
+			receive.winner(playerWon);
 		}
 		if (four_player) {
 			if (player3.score >= scoreLimit) {
 				playerWon = 3;
 				gameStatus = 3;
+				receive.winner(playerWon);
 			}
 			if (player4.score >= scoreLimit) {
 				playerWon = 4;
 				gameStatus = 3;
+				receive.winner(playerWon);
 			}
 		}
 
@@ -286,7 +291,12 @@ public class Pong implements ActionListener, KeyListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (gameStatus == 2) {
-			update();
+			try {
+				update();
+			} catch (SerialPortException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 		renderer.repaint();
@@ -334,7 +344,8 @@ public class Pong implements ActionListener, KeyListener {
 		} else if (id == KeyEvent.VK_SHIFT && gameStatus == 0) {
 			four_player = true;
 			bot = true;
-			selectingDifficulty = true;
+			selectingDifficulty = false;
+			start();
 		} else if (id == KeyEvent.VK_SPACE) {
 			if (gameStatus == 0 || gameStatus == 3) {
 				if (!selectingDifficulty) {

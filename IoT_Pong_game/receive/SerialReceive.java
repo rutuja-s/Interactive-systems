@@ -179,4 +179,9 @@ public class SerialReceive implements Receive {
 
 	}
 
+	@Override
+	public void winner(int playernumber) throws SerialPortException {
+		serialPort.writeString("w," + Integer.toString(playernumber));
+	}
+
 }
