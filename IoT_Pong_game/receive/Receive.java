@@ -16,6 +16,8 @@ public interface Receive {
 
 	public int ambient_light();
 
+	public int game_start();
+
 	public void start(String port_name);
 
 	public void close();

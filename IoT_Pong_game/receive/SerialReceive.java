@@ -14,6 +14,7 @@ public class SerialReceive implements Receive {
 	private static Data[] ultrasonic;
 	private static Data light;
 	private static Data ball_speed;
+	private static Data game_start;
 	private static String remaining_data;
 
 	@Override
@@ -53,6 +54,13 @@ public class SerialReceive implements Receive {
 	}
 
 	@Override
+	public int game_start() {
+		int result = game_start.getData();
+		game_start.setData(0);
+		return result;
+	}
+
+	@Override
 	public void start(String port_name) {
 		Thread thread = new Thread() {
 			public void run() {
@@ -64,6 +72,7 @@ public class SerialReceive implements Receive {
 				ultrasonic[3] = new Data();
 				light = new Data();
 				ball_speed = new Data();
+				game_start = new Data();
 
 				serialPort = new SerialPort(port_name);
 				try {
@@ -172,8 +181,11 @@ public class SerialReceive implements Receive {
 		case "p":
 			ball_speed.setData(Integer.parseInt(sensor_value[1]));
 			break;
+		case "s":
+			game_start.setData(Integer.parseInt(sensor_value[1]));
+			break;
 		default:
-			throw new IOException("Illegal data received: " + sensor_value[0] + " ,Thread: " + Thread.currentThread().getId());
+			throw new IOException("Illegal data received: " + sensor_value[0] + "," + sensor_value[1] + " ,Thread: " + Thread.currentThread().getId());
 
 		}
 
