@@ -11,6 +11,9 @@
 #define led1 4
 #define led2 6
 #define led3 13
+#define start2 A2
+#define start4 A3
+
 
 int LightSensorPin = A0; // select the input pin for LDR
 int LightSensorValue = 0;
@@ -46,6 +49,10 @@ pinMode(led0, OUTPUT);
 pinMode(led1, OUTPUT);
 pinMode(led2, OUTPUT);
 pinMode(led3, OUTPUT);
+pinMode(start2, INPUT);
+pinMode(start4, INPUT);
+digitalWrite(start2, LOW);
+digitalWrite(start4, LOW);
 LightSensorValue=analogRead(LightSensorPin);
 if(LightSensorValue<600){
   Serial.println("l,0");
@@ -68,6 +75,14 @@ a=0;b=0;c=0;d=0;
 void loop() {
 // put your main code here, to run repeatedly:
 
+if(digitalRead(start2)==1){
+  Serial.println("s,2");
+  delay(100);
+}else if(digitalRead(start4)==1){
+  Serial.println("s,4");
+  delay(100);
+}
+
 readSensors();
 LightSensorValue=analogRead(LightSensorPin);
 if(LightSensorValue<600){
@@ -87,7 +102,10 @@ if(psensorNewValue != psensorValue){
 }
 if(Serial.available() >= 2){
 String serialread = Serial.readString();
-
+if(serialread == "g,2"){
+  digitalWrite(led2, LOW);
+  digitalWrite(led3, LOW);
+}else{
 switch(serialread[2]){
   case '1': 
   digitalWrite(led1, LOW);
@@ -126,7 +144,7 @@ switch(serialread[2]){
   digitalWrite(led0, HIGH);
   break;
 }
-
+}
 }
 
 
