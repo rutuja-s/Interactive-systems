@@ -110,4 +110,15 @@ public class Paddle {
 
 	}
 
+	public void resize() {
+		if (paddleNumber == 2) {
+			this.x = pong.width - width;
+		}
+		if (pong.four_player) {
+			if (paddleNumber == 4) {
+				this.y = pong.height - height;
+			}
+		}
+	}
+
 }

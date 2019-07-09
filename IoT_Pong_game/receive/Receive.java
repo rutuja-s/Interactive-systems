@@ -18,6 +18,8 @@ public interface Receive {
 
 	public int game_start();
 
+	public void game_start(int number_of_players) throws SerialPortException;
+
 	public void start(String port_name);
 
 	public void close();

@@ -196,4 +196,9 @@ public class SerialReceive implements Receive {
 		serialPort.writeString("w," + Integer.toString(playernumber));
 	}
 
+	@Override
+	public void game_start(int number_of_players) throws SerialPortException {
+		serialPort.writeString("g," + Integer.toString(number_of_players));
+	}
+
 }

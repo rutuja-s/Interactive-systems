@@ -29,6 +29,7 @@ import receive.SerialReceive;
 public class Pong implements ActionListener, KeyListener {
 
 	public final Color PaddleColor[] = { Color.CYAN, Color.RED, Color.YELLOW, Color.GREEN };
+	private final String PaddleColorString[] = { "Blue", "Red", "Yellow", "Green" };
 
 	public int xOffset = 0, yOffset = 0;
 
@@ -63,6 +64,8 @@ public class Pong implements ActionListener, KeyListener {
 	public Random random;
 
 	public JFrame jframe;
+
+	public long wait_timer;
 
 	public Pong() {
 		Timer timer = new Timer(20, this);
@@ -108,6 +111,7 @@ public class Pong implements ActionListener, KeyListener {
 				resize();
 			}
 		});
+
 	}
 
 	public void resize() {
@@ -116,14 +120,12 @@ public class Pong implements ActionListener, KeyListener {
 				int min = Integer.min(jframe.getHeight() - 35, jframe.getWidth() - 15);
 				pong.height = min;
 				pong.width = min;
-				player3 = new Paddle(pong, 3);
-				player4 = new Paddle(pong, 4);
+				player4.resize();
 			} else {
 				pong.height = jframe.getHeight() - 35;
 				pong.width = jframe.getWidth() - 15;
 			}
-			player1 = new Paddle(pong, 1);
-			player2 = new Paddle(pong, 2);
+			player2.resize();
 		} else {
 			pong.height = jframe.getHeight() - 35;
 			pong.width = jframe.getWidth() - 15;
@@ -132,29 +134,44 @@ public class Pong implements ActionListener, KeyListener {
 
 	public void start() {
 		gameStatus = 2;
+		player1 = new Paddle(pong, 1);
+		player2 = new Paddle(pong, 2);
+		player3 = new Paddle(pong, 3);
+		player4 = new Paddle(pong, 4);
+		if (!four_player)
+			try {
+				receive.game_start(2);
+			} catch (SerialPortException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		resize();
 		ball = new Ball(this);
+		wait_timer = System.currentTimeMillis();
 	}
 
 	public void update() throws SerialPortException, InterruptedException {
 		if (player1.score >= scoreLimit) {
+			wait_timer = System.currentTimeMillis();
 			playerWon = 1;
 			gameStatus = 3;
 			receive.winner(playerWon);
-
 		}
 		if (player2.score >= scoreLimit) {
+			wait_timer = System.currentTimeMillis();
 			playerWon = 2;
 			gameStatus = 3;
 			receive.winner(playerWon);
 		}
 		if (four_player) {
 			if (player3.score >= scoreLimit) {
+				wait_timer = System.currentTimeMillis();
 				playerWon = 3;
 				gameStatus = 3;
 				receive.winner(playerWon);
 			}
 			if (player4.score >= scoreLimit) {
+				wait_timer = System.currentTimeMillis();
 				playerWon = 4;
 				gameStatus = 3;
 				receive.winner(playerWon);
@@ -168,10 +185,14 @@ public class Pong implements ActionListener, KeyListener {
 			player3.move(receive.ultrasonic_2());
 			player4.move(receive.ultrasonic_3());
 		}
-		if (four_player)
-			ball.update(player1, player2, player3, player4);
-		else
-			ball.update(player1, player2);
+
+		long currentTime = System.currentTimeMillis();
+		if ((currentTime - wait_timer) / 1000F >= 3) {
+			if (four_player)
+				ball.update(player1, player2, player3, player4);
+			else
+				ball.update(player1, player2);
+		}
 	}
 
 	public void render(Graphics2D g) {
@@ -201,8 +222,10 @@ public class Pong implements ActionListener, KeyListener {
 			if (!selectingDifficulty) {
 				g.setFont(new Font("Arial", 1, 30));
 
-				g.drawString("Press Space to Play", width / 2 - 150, height / 2 - 25);
-				g.drawString("Press Shift for 4 player", width / 2 - 200, height / 2 + 25);
+				g.drawString("Press a button to start a game \n", width / 2 - 200, height / 2);
+
+				// g.drawString("Press Space to Play", width / 2 - 150, height / 2 - 25);
+				// g.drawString("Press Shift for 4 player", width / 2 - 200, height / 2 + 25);
 				// g.drawString("<< Score Limit: " + scoreLimit + " >>", width / 2 - 150, height
 				// / 2 + 75);
 			}
@@ -267,7 +290,15 @@ public class Pong implements ActionListener, KeyListener {
 				player3.render(g);
 				player4.render(g);
 			}
-			ball.render(g);
+
+			long currentTime = System.currentTimeMillis();
+			if ((currentTime - wait_timer) / 1000F <= 3) {
+				g.setColor(Color.GRAY);
+				g.setFont(new Font("Arial", 1, 150));
+				g.drawString(Integer.toString(3 - (int) ((currentTime - wait_timer) / 1000F)), width / 2 - 25, height / 2);
+			} else {
+				ball.render(g);
+			}
 		}
 
 		if (gameStatus == 3) {
@@ -278,48 +309,81 @@ public class Pong implements ActionListener, KeyListener {
 			g.drawString("PONG", width / 2 - 75, 50);
 
 			g.setColor(PaddleColor[playerWon - 1]);
-			g.drawString("Player " + playerWon + " Wins!", width / 2 - 165, 200);
+			g.drawString(PaddleColorString[playerWon - 1] + " Player wins!", width / 2 - 165, height / 2 - 50);
 			g.setColor(contrastColor);
 
 			g.setFont(new Font("Arial", 1, 30));
 
-			g.drawString("Press Space to Play Again", width / 2 - 185, height / 2 - 25);
-			g.drawString("Press ESC for Menu", width / 2 - 140, height / 2 + 25);
+			// g.drawString("Press Space to Play Again", width / 2 - 185, height / 2 - 25);
+			// g.drawString("Press ESC for Menu", width / 2 - 140, height / 2 + 25);
 		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (gameStatus == 2) {
+		switch (gameStatus) {
+		case 2:
 			try {
-				try {
-					update();
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				update();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			} catch (SerialPortException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		} else {
-			if (gameStatus == 0) {
-				int game_start = receive.game_start();
-				if (game_start == 2) {
-					four_player = false;
-					start();
-				} else {
-					if (game_start == 4) {
-						four_player = true;
-						start();
-					}
-				}
+			break;
+		case 0:
+			int game_start = receive.game_start();
+			if (game_start == 2) {
+				four_player = false;
+				start();
 			} else {
-				if (gameStatus == 3) {
-
+				if (game_start == 4) {
+					four_player = true;
+					start();
 				}
 			}
+			break;
+		case 3:
+			long currentTime = System.currentTimeMillis();
+			if ((currentTime - wait_timer) / 1000F >= 10)
+				gameStatus = 0;
+			break;
 		}
+
+		/*
+		 * if (gameStatus == 2) {
+		 * try {
+		 * try {
+		 * update();
+		 * } catch (InterruptedException e1) {
+		 * // TODO Auto-generated catch block
+		 * e1.printStackTrace();
+		 * }
+		 * } catch (SerialPortException e1) {
+		 * // TODO Auto-generated catch block
+		 * e1.printStackTrace();
+		 * }
+		 * } else {
+		 * if (gameStatus == 0) {
+		 * int game_start = receive.game_start();
+		 * if (game_start == 2) {
+		 * four_player = false;
+		 * start();
+		 * } else {
+		 * if (game_start == 4) {
+		 * four_player = true;
+		 * start();
+		 * }
+		 * }
+		 * } else {
+		 * if (gameStatus == 3) {
+		 * 
+		 * }
+		 * }
+		 * }
+		 */
 
 		renderer.repaint();
 	}
