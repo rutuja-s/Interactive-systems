@@ -295,7 +295,7 @@ public class Pong implements ActionListener, KeyListener {
 			if ((currentTime - wait_timer) / 1000F <= 3) {
 				g.setColor(Color.GRAY);
 				g.setFont(new Font("Arial", 1, 150));
-				g.drawString(Integer.toString(3 - (int) ((currentTime - wait_timer) / 1000F)), width / 2 - 25, height / 2);
+				g.drawString(Integer.toString(3 - (int) ((currentTime - wait_timer) / 1000F)), jframe.getWidth() / 2 - 25, jframe.getHeight() / 2);
 			} else {
 				ball.render(g);
 			}
