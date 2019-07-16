@@ -347,8 +347,10 @@ public class Pong implements ActionListener, KeyListener {
 			break;
 		case 3:
 			long currentTime = System.currentTimeMillis();
-			if ((currentTime - wait_timer) / 1000F >= 10)
+			if ((currentTime - wait_timer) / 1000F >= 10) {
+				receive.game_start();
 				gameStatus = 0;
+			}
 			break;
 		}
 
